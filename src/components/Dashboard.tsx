@@ -42,7 +42,7 @@ const Dashboard = () => {
           </p>
         </motion.div>
 
-        {/* Stats Section */}
+
         <motion.div 
           variants={container}
           initial="hidden"
@@ -61,7 +61,7 @@ const Dashboard = () => {
           ))}
         </motion.div>
 
-        {/* Quick Actions Grid */}
+
         <motion.div 
           variants={container}
           initial="hidden"
@@ -122,33 +122,34 @@ const Dashboard = () => {
             </Link>
           </motion.div>
 
-          <motion.div variants={item}>
-            <Link 
-              to="/users" 
-              className="block bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-200 overflow-hidden"
-            >
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <Users className="h-8 w-8 text-white" />
-                  <span className="bg-purple-400 bg-opacity-30 text-white px-3 py-1 rounded-full text-sm">
-                    Usuarios
-                  </span>
-                </div>
-                <h2 className="text-xl font-semibold text-white mb-2">Miembros</h2>
-                <p className="text-purple-100">Gestiona los usuarios</p>
-              </div>
-              <div className="bg-gradient-to-r from-purple-600 to-purple-700 p-4">
-                <Link 
-                  to="/users/new" 
-                  className="flex items-center text-white hover:underline"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nuevo Usuario
-                </Link>
-              </div>
-            </Link>
-          </motion.div>
 
+<motion.div variants={item} className="space-y-2">
+  <Link 
+    to="/users"
+    className="block bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-200 overflow-hidden"
+  >
+    <div className="p-6">
+      <div className="flex items-center justify-between mb-4">
+        <Users className="h-8 w-8 text-white" />
+        <span className="bg-purple-400 bg-opacity-30 text-white px-3 py-1 rounded-full text-sm">
+          Usuarios
+        </span>
+      </div>
+      <h2 className="text-xl font-semibold text-white mb-2">Miembros</h2>
+      <p className="text-purple-100">Gestiona los usuarios</p>
+    </div>
+  </Link>
+
+  <Link 
+    to="/users/new"
+    className="flex items-center text-purple-600 hover:underline pl-2"
+  >
+    <Plus className="h-4 w-4 mr-2" />
+    Nuevo Usuario
+  </Link>
+</motion.div>
+
+      
           <motion.div variants={item}>
             <Link 
               to="/loans" 
@@ -177,7 +178,6 @@ const Dashboard = () => {
           </motion.div>
         </motion.div>
 
-        {/* Recent Activity Section */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

@@ -6,8 +6,8 @@ interface UserFormData {
   nombre: string;
   email: string;
   tipoUsuario: string;
-  sanciones: number;
-  fechaRegistro?: string; // Opcional porque no siempre existe (en edición no)
+  cedula: string;
+  fechaRegistro?: string;
 }
 
 const UserForm = () => {
@@ -19,8 +19,8 @@ const UserForm = () => {
     nombre: '',
     email: '',
     tipoUsuario: 'ESTUDIANTE',
-    sanciones: 0,
-    fechaRegistro: new Date().toISOString().substring(0, 10), // sólo para creación
+    cedula: '',
+    fechaRegistro: new Date().toISOString().substring(0, 10),
   });
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -37,8 +37,8 @@ const UserForm = () => {
           nombre: data.nombre,
           email: data.email,
           tipoUsuario: data.tipoUsuario,
-          sanciones: data.sanciones,
-          // no seteamos fechaRegistro porque no viene ni debe enviarse
+          cedula: data.cedula,
+
         });
       } catch {
         setError('Error al cargar los detalles del usuario');
@@ -56,7 +56,7 @@ const UserForm = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === 'sanciones' ? (value === '' ? 0 : Number(value)) : value,
+      [name]: value,
     }));
   };
 
@@ -64,21 +64,44 @@ const UserForm = () => {
     e.preventDefault();
     setError(null);
 
+    if (!/^[0-9]{6,15}$/.test(formData.cedula)) {
+      setError('La cédula debe contener solo números y tener entre 6 y 15 dígitos');
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      setError('Por favor ingrese un email válido');
+      return;
+    }
+
     try {
       setLoading(true);
 
       if (isEditing && id) {
-        // En edición no enviamos fechaRegistro porque backend no lo usa
-        const { fechaRegistro, ...dataToUpdate } = formData;
-        await userService.update(Number(id), dataToUpdate);
+
+        await userService.update(Number(id), {
+          nombre: formData.nombre,
+          email: formData.email,
+          tipoUsuario: formData.tipoUsuario,
+          cedula: formData.cedula
+        });
       } else {
-        // En creación sí enviamos todo (incluyendo fechaRegistro)
-        await userService.create(formData);
+ 
+        await userService.create({
+          ...formData,
+          sanciones: 0 
+        });
       }
 
       navigate('/users');
-    } catch {
-      setError(`Error al ${isEditing ? 'actualizar' : 'crear'} el usuario`);
+    } catch (err: any) {
+      if (err.message.includes('correo')) {
+        setError('El email ya está registrado');
+      } else if (err.message.includes('cédula')) {
+        setError(err.message);
+      } else {
+        setError(`Error al ${isEditing ? 'actualizar' : 'crear'} el usuario`);
+      }
     } finally {
       setLoading(false);
     }
@@ -117,6 +140,23 @@ const UserForm = () => {
         </div>
 
         <div className="mb-4">
+          <label htmlFor="cedula" className="block text-gray-700 font-medium mb-2">
+            Cédula
+          </label>
+          <input
+            type="text"
+            id="cedula"
+            name="cedula"
+            value={formData.cedula}
+            onChange={handleChange}
+            required
+            maxLength={15}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Ingrese la cédula (solo números)"
+          />
+        </div>
+
+        <div className="mb-4">
           <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
             Email
           </label>
@@ -150,24 +190,6 @@ const UserForm = () => {
             <option value="PROFESOR">Profesor</option>
             <option value="ADMIN">Administrador</option>
           </select>
-        </div>
-
-        <div className="mb-4">
-          <label
-            htmlFor="sanciones"
-            className="block text-gray-700 font-medium mb-2"
-          >
-            Sanciones
-          </label>
-          <input
-            type="number"
-            id="sanciones"
-            name="sanciones"
-            value={formData.sanciones}
-            onChange={handleChange}
-            min={0}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
         </div>
 
         {/* Mostrar fechaRegistro sólo en creación */}
